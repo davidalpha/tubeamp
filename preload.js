@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('tubeamp', {
   setSettings: (patch) => ipcRenderer.invoke('settings:set', patch),
   oembed: (id) => ipcRenderer.invoke('oembed', id),
   playlist: (listId, videoId) => ipcRenderer.invoke('playlist', listId, videoId),
+  prepareVideo: () => ipcRenderer.invoke('player:prepare'),
   close: () => ipcRenderer.invoke('win:close'),
   minimize: () => ipcRenderer.invoke('win:minimize'),
   isPinned: () => ipcRenderer.invoke('win:isPinned'),

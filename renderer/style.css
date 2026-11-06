@@ -209,18 +209,13 @@ body.mode-mini .sw-knob { left: 38px; }
   overflow: hidden;
   background: #04071a;
 }
-#video, .glass iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-/* The embed never receives the pointer, so YouTube never shows its hover
-   overlays (title, channel, share, logo). The shield takes the clicks instead. */
-.glass iframe { pointer-events: none; }
-
-/* The player is made taller than the screen. YouTube fits the video to the
-   width and letterboxes the extra height, drawing its title bar and bottom
-   overlays in those bands, which fall outside the screen's visible area.
-   The video itself fills the screen exactly. */
-.glass { --crop: 72px; }
-.glass #video { top: calc(var(--crop) * -1); bottom: auto; height: calc(100% + var(--crop) * 2); }
-.video-shield { position: absolute; inset: 0; cursor: pointer; }
+#video, .glass iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+  /* Keep pointer movement from showing YouTube's overlay; use the app controls. */
+  pointer-events: none;
+}
+.glass iframe { visibility: hidden; }
+.glass iframe.embed-ready { visibility: visible; }
 
 /* ---------- picture modes ----------
    A filter on the player adjusts its color as it is composited; a layer
@@ -963,8 +958,8 @@ body.mode-mini .glass #video {
   inset: auto;
   left: 50%; top: 50%;
   width: 320px;
-  height: calc(180px + var(--crop) * 2);
-  margin: calc(-90px - var(--crop)) 0 0 -160px;
+  height: 180px;
+  margin: -90px 0 0 -160px;
   transform: scale(0.4889);
 }
 body.mode-mini .gloss {
