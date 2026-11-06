@@ -1,0 +1,42 @@
+# Dependencies and package manager caches
+node_modules/
+.npm/
+.yarn/cache/
+.yarn/unplugged/
+.pnpm-store/
+
+# Electron packaging output (keep build/ available for packaging resources)
+/dist/
+/out/
+/release/
+
+# Logs and diagnostic reports
+*.log
+report.*.json
+
+# Test coverage and generated caches
+coverage/
+.nyc_output/
+.cache/
+*.tsbuildinfo
+
+# Local environment settings (keep example files trackable)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Editor and temporary files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+/tmp/
+/temp/
+
+# Operating system files
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini

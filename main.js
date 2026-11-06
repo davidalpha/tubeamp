@@ -203,6 +203,47 @@ function createWindow() {
 
 /* ---------- ipc ---------- */
 
+// Called after the iframe API is ready, when the final YouTube frame exists.
+// Keep this function self-contained: it executes inside that frame.
+function prepareYouTubeEmbed() {
+  if (window.__tubeampPictureStyle &&
+      document.adoptedStyleSheets.includes(window.__tubeampPictureStyle)) return true;
+  // Show the picture, rather than trying to enumerate every YouTube control.
+  // Visibility preserves layout and lets the video/thumbnail remain visible
+  // through hidden ancestors. New controls are hidden immediately by CSS.
+  // A constructed sheet avoids inline <style> restrictions in the embed.
+  const style = new CSSStyleSheet();
+  style.replaceSync(`
+    body * { visibility: hidden !important; }
+    body video,
+    body .ytp-cued-thumbnail-overlay-image,
+    body .ytp-error, body .ytp-error *,
+    body .ytp-error-content-wrap, body .ytp-error-content-wrap *,
+    body .ytp-ad-player-overlay, body .ytp-ad-player-overlay *,
+    body .ytp-ad-module, body .ytp-ad-module * {
+      visibility: visible !important;
+    }
+    body *::before, body *::after { visibility: hidden !important; }
+  `);
+  document.adoptedStyleSheets = [...document.adoptedStyleSheets, style];
+  window.__tubeampPictureStyle = style;
+  return true;
+}
+
+ipcMain.handle('player:prepare', async (event) => {
+  if (!win || event.sender !== win.webContents ||
+      event.senderFrame !== win.webContents.mainFrame) return false;
+  const frame = win.webContents.mainFrame.framesInSubtree.find((candidate) => {
+    if (candidate.isDestroyed()) return false;
+    try {
+      const url = new URL(candidate.url);
+      return url.origin === 'https://www.youtube.com' && url.pathname.startsWith('/embed/');
+    } catch { return false; }
+  });
+  if (!frame) throw new Error('YouTube embed frame was not found');
+  return frame.executeJavaScript(`(${prepareYouTubeEmbed.toString()})()`);
+});
+
 ipcMain.handle('settings:get', () => settings.player || {});
 ipcMain.handle('settings:set', (_e, patch) => {
   if (patch && typeof patch === 'object') {

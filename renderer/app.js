@@ -6,7 +6,6 @@ const api = window.tubeamp;
 const els = {
   shell: $('#shell'),
   videoEmpty: $('#videoEmpty'),
-  videoReady: $('#videoReady'),
   time: $('#lcdTime'),
   marquee: $('#marquee'),
   title: $('#lcdTitle'),
@@ -212,8 +211,6 @@ function updatePlayButton() {
   if (!player || !S.ready) return;
   const st = player.getPlayerState();
   const playing = st === YT.PlayerState.PLAYING || st === YT.PlayerState.BUFFERING;
-  // the READY cover can never outlive playback starting
-  if (playing && !els.videoReady.hidden) els.videoReady.hidden = true;
   if (playing === shown.playing) return;
   shown.playing = playing;
   els.btnPlay.classList.toggle('playing', playing);
@@ -561,7 +558,6 @@ function clearQueue() {
   S.history = [];
   if (S.ready) player.stopVideo();
   els.videoEmpty.hidden = false;
-  els.videoReady.hidden = true;
   els.track.textContent = '--/--';
 }
 
@@ -795,7 +791,6 @@ function playIndex(i, autoplay = true) {
   S.idx = i;
   const id = S.ids[i];
   if (autoplay) {
-    els.videoReady.hidden = true;
     player.loadVideoById(id);
   } else {
     player.cueVideoById(id);
@@ -1045,13 +1040,32 @@ window.onYouTubeIframeAPIReady = () => {
       fs: 0,
       origin: location.origin,
     },
-    events: { onReady, onStateChange, onError },
+    events: { onReady, onStateChange, onError, onApiChange: disableCaptions },
   });
 };
 
+function disableCaptions() {
+  // Caption preferences can be restored when the module loads for each video.
+  // Only unload an active module, since unloading also fires onApiChange.
+  if (player && typeof player.unloadModule === 'function' &&
+      typeof player.getOptions === 'function' &&
+      player.getOptions().includes('captions')) {
+    player.unloadModule('captions');
+  }
+}
+
 async function onReady() {
   await booted;
+  try {
+    if (!await api.prepareVideo()) throw new Error('Embed preparation was rejected');
+    player.getIframe().classList.add('embed-ready');
+  } catch (err) {
+    console.error('Could not prepare YouTube embed:', err);
+    setStatus('Could not prepare video. Close Tubeamp and restart.');
+    return;
+  }
   S.ready = true;
+  disableCaptions();
   player.setVolume(S.volume);
   if (S.muted) player.mute();
   const last = saved.lastSource || (saved.lastUrl ? parseInput(saved.lastUrl) : null);
@@ -1067,9 +1081,6 @@ async function onReady() {
 function onStateChange(e) {
   const st = e.data;
   if (S.loading) return;
-  // A cued but unstarted video shows YouTube's own title card and play button;
-  // cover it until playback starts.
-  els.videoReady.hidden = !(st === YT.PlayerState.CUED && S.ids.length);
   if (st === YT.PlayerState.PLAYING) {
     S.errStreak = 0;
     const id = S.ids[S.idx];
@@ -1251,7 +1262,6 @@ document.addEventListener('mousedown', (e) => {
   });
 })();
 
-$('#videoShield').addEventListener('click', togglePlay);
 $('#timeBtn').addEventListener('click', () => { S.remaining = !S.remaining; });
 $('#btnVolDown').addEventListener('click', () => setVolume(S.volume - 5));
 $('#btnVolUp').addEventListener('click', () => setVolume(S.volume + 5));
