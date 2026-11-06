@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Tubeamp</title>
+  <link rel="preload" href="fonts/doto-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/barlow-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="mode-list">
+<div id="shell">
+
+  <!-- top edge of the unit: drag area, wordmark, switches -->
+  <header class="topbar">
+    <div class="badge">
+      <svg width="9" height="8" viewBox="0 0 9 8"><path d="M0 0h9L4.5 8z" fill="currentColor"/></svg>
+      <span class="wordmark">Tubeamp</span>
+      <span class="model">TA-01</span>
+    </div>
+    <div class="top-controls">
+      <div class="switch-group">
+        <div class="modes viewsw" role="group" aria-label="View">
+          <span class="sw-knob" aria-hidden="true"></span>
+          <button data-mode="list" title="Video and playlist (Ctrl+1)" aria-label="Video and playlist"></button>
+          <button data-mode="video" title="Video only (Ctrl+2)" aria-label="Video only"></button>
+          <button data-mode="mini" title="Remote (Ctrl+3)" aria-label="Remote view"></button>
+        </div>
+        <div class="sw-labels" aria-hidden="true"><span>LIST</span><span>VIDEO</span><span>MINI</span></div>
+      </div>
+      <div class="switch-group">
+        <button id="btnPin" class="hold" title="Keep on top" aria-label="Keep on top"><span class="hold-knob"></span></button>
+        <div class="sw-labels single" aria-hidden="true"><span>ON TOP</span></div>
+      </div>
+      <div class="nubs">
+        <button id="btnMin" class="nub" title="Minimize" aria-label="Minimize">
+          <svg width="8" height="8" viewBox="0 0 8 8"><path d="M1 6h6" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+        <button id="btnClose" class="nub close" title="Close" aria-label="Close">
+          <svg width="8" height="8" viewBox="0 0 8 8"><path d="M1.5 1.5l5 5M6.5 1.5l-5 5" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- the disc window: blue acrylic bezel with the video behind glass -->
+  <section class="video-wrap">
+    <div class="glass">
+      <div id="video"></div>
+      <div class="picture-fx" aria-hidden="true"></div>
+      <div class="video-empty" id="videoEmpty"><span>NO DISC</span></div>
+      <div class="video-empty" id="videoReady" hidden><span>READY</span></div>
+      <!-- catches the pointer so YouTube's hover overlays never appear -->
+      <div class="video-shield" id="videoShield" title="Click to play or pause"></div>
+      <div class="gloss" aria-hidden="true"></div>
+    </div>
+    <!-- slot for the side switch, cut into the case edge, with engraved positions -->
+    <span class="side-slot" aria-hidden="true"></span>
+    <div class="side-labels">
+      <span class="silk" id="pictColor">COLOR</span>
+      <span class="silk" id="pictLcd">LCD</span>
+    </div>
+  </section>
+
+  <!-- brushed silver faceplate: LCD, jog dial, seek, keys -->
+  <section class="faceplate">
+
+    <div class="face-main">
+      <section class="lcd" id="lcd">
+        <button class="lcd-time" id="timeBtn" title="Show elapsed or remaining time">
+          <span class="ghost" aria-hidden="true">88:88</span>
+          <span id="lcdTime">0:00</span>
+        </button>
+        <div class="lcd-meta">
+          <div class="marquee" id="marquee"><span id="lcdTitle">NO DISC</span></div>
+          <div class="lcd-sub">
+            <span id="lcdTrack">--/--</span>
+            <span id="lcdDur">--:--</span>
+            <span class="flags">
+              <button class="led" id="ledShuffle" title="Shuffle (S)">SHUF</button>
+              <button class="led" id="ledRepeat" title="Repeat (R)">RPT</button>
+            </span>
+          </div>
+          <div class="lcd-vol">
+            <span class="vol-meter" id="volMeter" aria-hidden="true"></span>
+            <span id="lcdVol">VOL 70</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- round jog dial -->
+      <div class="jog" id="transport">
+        <span class="jog-led" aria-hidden="true"></span>
+        <button class="jk prev" id="btnPrev" title="Previous (P)" aria-label="Previous">
+          <svg width="14" height="10" viewBox="0 0 16 12" fill="currentColor"><path d="M2 1h2v10H2zM15 1v10L8 6zM9 1v10L2.8 6z"/></svg>
+        </button>
+        <button class="jk next" id="btnNext" title="Next (N)" aria-label="Next">
+          <svg width="14" height="10" viewBox="0 0 16 12" fill="currentColor"><path d="M12 1h2v10h-2zM1 1v10l7-5zM7 1v10l6.2-5z"/></svg>
+        </button>
+        <button class="jk stop" id="btnStop" title="Stop" aria-label="Stop">
+          <svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="1" width="10" height="10"/></svg>
+        </button>
+        <button class="jk play" id="btnPlay" title="Play or pause (Space)" aria-label="Play">
+          <svg class="i-play" width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M3.5 1.5v11L12.5 7z"/></svg>
+          <svg class="i-pause" width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M3 2h3v10H3zM8 2h3v10H8z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="seek-groove"><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek"></div>
+
+  </section>
+
+  <!-- keys and volume slot, cut into the blue metal -->
+  <div class="face-bottom">
+      <div class="pills">
+        <div class="pill-wrap">
+          <button class="pill toggle" id="btnShuffle" title="Shuffle (S)" aria-label="Shuffle"><span class="dot"></span></button>
+          <span class="silk">SHUFFLE</span>
+        </div>
+        <div class="pill-wrap">
+          <button class="pill toggle" id="btnRepeat" title="Repeat: off, all, one (R)" aria-label="Repeat"><span class="dot"></span></button>
+          <span class="silk" id="repeatLabel">REPEAT</span>
+        </div>
+        <div class="pill-wrap">
+          <button class="pill toggle mute" id="btnMute" title="Mute (M)" aria-label="Mute"><span class="dot"></span></button>
+          <span class="silk">MUTE</span>
+        </div>
+      </div>
+      <div class="vol">
+        <span class="silk">VOL</span>
+        <button class="rock" id="btnVolDown" title="Volume down" aria-label="Volume down">&minus;</button>
+        <div class="vol-groove vol-slot"><input type="range" id="vol" min="0" max="100" value="70" aria-label="Volume"></div>
+        <button class="rock" id="btnVolUp" title="Volume up" aria-label="Volume up">+</button>
+      </div>
+    </div>
+
+  <!-- clip-on base: playlist with load controls, below a seam groove -->
+  <div class="base">
+  <!-- playlist: a second, larger screen -->
+  <section class="panel playlist-panel">
+    <div class="screen">
+      <div class="list-head">
+        <div class="active">
+          <span id="activeName"></span>
+          <span id="count"></span>
+        </div>
+        <button class="save-tag" id="btnSave" title="Save this list" hidden>SAVE</button>
+      </div>
+      <ol id="list"></ol>
+    </div>
+    <div class="load-bar" id="loadBar">
+      <div class="field" id="field" inert>
+        <input id="url" type="text" spellcheck="false" placeholder="Paste a YouTube playlist link">
+        <button class="clear" id="btnClear" title="Clear" aria-label="Clear link" hidden>
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+      <button class="key" id="btnAdd" title="Add to this list">ADD</button>
+      <button class="key" id="btnLoad" aria-expanded="false" title="Load a playlist (Ctrl+L)">LOAD</button>
+      <div class="recent">
+        <button class="key" id="btnRecent" aria-haspopup="menu" aria-expanded="false" title="Saved and recent lists">
+          LISTS
+          <svg width="8" height="8" viewBox="0 0 16 16" fill="currentColor"><path d="M2 11h12L8 4z"/></svg>
+        </button>
+        <div class="recent-menu" id="recentMenu" role="menu" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- foot strip: badge and colour LED -->
+  <div class="foot">
+    <span class="tagline"><b>TYPE-YT</b><span>Streaming Video Player</span></span>
+    <div class="foot-right">
+      <button class="color-led" id="btnColor" title="Body colour" aria-label="Body colour" aria-haspopup="dialog" aria-expanded="false"></button>
+
+    </div>
+    <div class="color-card" id="colorCard" role="dialog" aria-label="Body colour" hidden>
+      <h3>Colour Variations</h3>
+      <h4>Anodised metal</h4>
+      <div class="chips" id="chipsMetal"></div>
+      <h4>Plastic</h4>
+      <div class="chips" id="chipsPlastic"></div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- side switch: protrudes from the right edge of the case -->
+<button class="side-tab" id="btnPict" role="switch" aria-checked="false" title="Picture: color or LCD (V)" aria-label="LCD picture"></button>
+
+<!-- resize zones along every edge and corner of the body -->
+<div class="rz" data-edge="n"></div><div class="rz" data-edge="s"></div>
+<div class="rz" data-edge="w"></div><div class="rz" data-edge="e"></div>
+<div class="rz" data-edge="nw"></div><div class="rz" data-edge="ne"></div>
+<div class="rz" data-edge="sw"></div><div class="rz" data-edge="se"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "tubeamp",
+  "version": "1.0.0",
+  "description": "A small desktop player for YouTube music video playlists",
+  "main": "main.js",
+  "author": "David",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.david.tubeamp",
+    "productName": "Tubeamp",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.music"
+    },
+    "win": {
+      "target": "portable"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
